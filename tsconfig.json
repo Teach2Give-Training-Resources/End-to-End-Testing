@@ -14,10 +14,12 @@
     "skipLibCheck": true 
   },
   "include": [
-    "src/**/*"   
-, "__test__"  ],
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
+    "**/__tests__/**/*",
+    "**/*.test.ts", 
     "**/*.spec.ts"
   ],
 }
