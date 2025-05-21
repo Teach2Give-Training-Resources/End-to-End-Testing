@@ -13,6 +13,6 @@ const main = async () => {
 
 main()
 
-const db = drizzle(client, { schema, logger: true }) //create a drizzle instance
+const db = drizzle(client, { schema, logger: false }) //create a drizzle instance
 
 export default db;

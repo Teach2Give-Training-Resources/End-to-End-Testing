@@ -4,9 +4,13 @@ import db from "../drizzle/db";
 import { eq, sql } from "drizzle-orm";
 
 // create a todo
-export const createTodoService = async (todo: TITodo): Promise<string | null> => {
-    await db.insert(TodoTable).values(todo);
-    return "Todo Created Successfully";
+export const createTodoService = async (todo: TITodo) => {
+    const [inserted] = await db.insert(TodoTable).values(todo).returning();
+    if (inserted) {
+        return inserted;
+    }
+    return null;
+
 }
 
 // get all orders

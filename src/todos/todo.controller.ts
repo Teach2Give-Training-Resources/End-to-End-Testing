@@ -42,7 +42,7 @@ export const getTodoByIdController = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id)) {
-            return res.status(400).json({ message: "Invalid ID" });
+            return res.status(400).json({ message: "Invalid ID" }); //an appropriate status code is number 400 because the request is invalid
         }
 
         const todo = await getTodoByIdService(id);
@@ -81,7 +81,7 @@ export const updateTodoController = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Todo not updated" });
         }
 
-        return res.status(200).json({ message: "Todo updated successfully", data: updatedTodo });
+        return res.status(200).json({ message: "Todo updated successfully" });
     } catch (error: any) {
         return res.status(500).json({ error: error.message });
     }
@@ -105,7 +105,7 @@ export const deleteTodoController = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Todo not deleted" });
         }
 
-        return res.status(200).json({ message: "Todo deleted successfully" });
+        return res.status(204).send();
     } catch (error: any) {
         return res.status(500).json({ error: error.message });
     }
