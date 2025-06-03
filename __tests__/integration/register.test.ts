@@ -1,8 +1,8 @@
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
-import app from '../src/index';
-import db from '../src/drizzle/db';
-import { UsersTable } from '../src/drizzle/schema';
+import app from '../../src/index';
+import db from '../../src/drizzle/db';
+import { UsersTable } from '../../src/drizzle/schema';
 import { eq } from 'drizzle-orm';
 
 const testUser = {

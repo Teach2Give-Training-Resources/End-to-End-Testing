@@ -1,8 +1,8 @@
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
-import app from '../src/index';
-import db from '../src/drizzle/db';
-import { TodoTable, UsersTable } from '../src/drizzle/schema';
+import app from '../../src/index';
+import db from '../../src/drizzle/db';
+import { TodoTable, UsersTable } from '../../src/drizzle/schema';
 import { eq } from 'drizzle-orm';
 
 let token: string;
@@ -206,8 +206,4 @@ describe("Todo API", () => {
             })
         );
     });
-
-
-
-
 });
