@@ -51,8 +51,7 @@ describe("Todo Service", () => {
 
         it("should return null if insertion fails", async () => {
             (db.insert as jest.Mock).mockReturnValue({// Mock the insert method
-                // Mock the values method, which is called after insert
-                values: jest.fn().mockReturnValue({
+                values: jest.fn().mockReturnValue({  // Mock the values method, which is called after insert
                     returning: jest.fn().mockResolvedValueOnce([undefined])
                 })
             });
@@ -134,7 +133,7 @@ describe("Todo Service", () => {
     describe("deleteTodoService", () => {
         it("should delete a todo and return success message", async () => {
             (db.delete as jest.Mock).mockReturnValue({
-                where: jest.fn().mockResolvedValueOnce(undefined) 
+                where: jest.fn().mockResolvedValueOnce(undefined)
             });
 
             const result = await deleteTodoService(1);
