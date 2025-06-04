@@ -1,34 +1,24 @@
 import express from 'express';
 import user from './auth/auth.router';
-import todo from './todos/todo.router';
+import todo from './todo/todo.router';
 
-const initializeApp = () => {
-
+const initilizeApp = () => {
     const app = express();
-    app.use(express.json())
+    app.use(express.json()); //used to parse JSON bodies
 
     // routes
-    user(app)
-    todo(app)
+    user(app);
+    todo(app);
 
-    // test endpoint
     app.get('/', (req, res) => {
-        res.send('Hello World!');
+        res.send('Hello, World!');
     })
 
     return app;
 
 }
 
-const app = initializeApp();
-// module.exports = app;
+const app = initilizeApp();
 export default app;
-
-
-
-
-
-
-
 
 

@@ -1,9 +1,9 @@
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import app from '../../src/index';
-import db from '../../src/drizzle/db';
-import { TodoTable, UsersTable } from '../../src/drizzle/schema';
-import { eq } from 'drizzle-orm';
+import db from '../../src/Drizzle/db';
+import { TodoTable, UsersTable } from '../../src/Drizzle/schema'
+import { eq, is } from 'drizzle-orm';
 
 let token: string;
 let userId: number;
@@ -17,14 +17,15 @@ const testUser = {
 };
 
 beforeAll(async () => {
-    // create and insert a test user
+    // Create a test user
     const hashedPassword = bcrypt.hashSync(testUser.password, 10);
     const [user] = await db.insert(UsersTable).values({
         ...testUser,
-        password: hashedPassword
+        password: hashedPassword,
+        role: "admin", // to get access to the todo routes
+        isVerified: true // to skip verification checks
     }).returning();
     userId = user.id;
-
 
     // login to get the token
     const res = await request(app)
@@ -34,23 +35,23 @@ beforeAll(async () => {
             password: testUser.password
         });
     token = res.body.token;
-});
+})
 
 afterAll(async () => {
-    // clean up the test user
+    // Clean up the test user and todo
     await db.delete(TodoTable).where(eq(TodoTable.userId, userId));
-    await db.delete(UsersTable).where(eq(UsersTable.id, userId));
-    // close the database connection
+    await db.delete(UsersTable).where(eq(UsersTable.email, testUser.email));
     await db.$client.end();
 });
 
-describe("Todo API", () => {
+describe("Todo API Integration Tests", () => {
     it("Should create a todo", async () => {
         const todo = {
             userId,
             todoName: "Test Todo",
             description: "A test todo",
-            dueDate: new Date().toISOString()
+            dueDate: new Date().toISOString(),
+            // isCompleted: false
         };
         const res = await request(app)
             .post("/todo")
@@ -59,19 +60,21 @@ describe("Todo API", () => {
 
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty("message", "Todo created successfully");
-        todoId = res.body.data.id;
-        console.log("Todo ID:", todoId);
-    });
+        todoId = res.body.todo.id; // Store the created todo ID for later tests
+        console.log(`Created Todo ID: ${todoId}`);
+    })
+
 
     it("Should get all todos", async () => {
         const res = await request(app)
-            .get("/todo")
+            .get("/todos")
             .set("Authorization", `Bearer ${token}`);
 
         expect(res.statusCode).toBe(200);
         expect(res.body.data).toBeInstanceOf(Array);
         expect(res.body.data.length).toBeGreaterThan(0);
-    });
+        console.log("Todos:", res.body.data);
+    })
 
     it("should get a todo by id", async () => {
         const res = await request(app)
@@ -80,7 +83,9 @@ describe("Todo API", () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.data).toHaveProperty("id", todoId);
-    });
+        expect(res.body.data).toHaveProperty("todoName", "Test Todo");
+    })
+
 
     it("should update a todo", async () => {
         const updated = {
@@ -94,7 +99,7 @@ describe("Todo API", () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty("message", "Todo updated successfully");
-    });
+    })
 
     it("Should delete a todo", async () => {
         const res = await request(app)
@@ -103,24 +108,20 @@ describe("Todo API", () => {
 
         expect(res.statusCode).toBe(204);
         expect(res.body).toEqual({});
-    });
+    })
 
-    // NEGATIVE TEST CASES
+    // NEGATIVE TESTS
     it("should not get a todo with invalid id", async () => {
         const res = await request(app)
-            .get(`/todo/invalid-id`)
+            .get("/todo/invalid-id")
             .set("Authorization", `Bearer ${token}`);
 
         expect(res.statusCode).toBe(400);
-        expect(res.body).toEqual(
-            expect.objectContaining({
-                message: "Invalid ID"
-            })
-        );
-    });
+        expect(res.body).toHaveProperty("message", "Invalid ID");
 
+    })
 
-    it("Should not get a new todo with non-existent ID", async () => {
+    it("Should not get a todo with non-existent ID", async () => {
 
         const res = await request(app)
             .get(`/todo/99999`)
@@ -149,7 +150,8 @@ describe("Todo API", () => {
                 message: "Invalid ID"
             })
         );
-    });
+    })
+
 
     it("should not update a todo with non-existent id", async () => {
         const res = await request(app)
@@ -166,7 +168,7 @@ describe("Todo API", () => {
                 message: "Todo not found"
             })
         );
-    });
+    })
 
     it("should not delete a todo with invalid id", async () => {
         const res = await request(app)
@@ -179,7 +181,7 @@ describe("Todo API", () => {
                 message: "Invalid ID"
             })
         );
-    });
+    })
 
     it("should not delete a todo with non-existent id", async () => {
         const res = await request(app)
@@ -192,12 +194,12 @@ describe("Todo API", () => {
                 message: "Todo not found"
             })
         );
-    });
+    })
 
     it("should not allow access without token", async () => {
         const res = await request(app)
-            .get("/todo")
-            .set("Authorization", `jhjhjhjhj`);
+            .get("/todos")
+            .set("Authorization", ``); // No token
 
         expect(res.statusCode).toBe(401);
         expect(res.body).toEqual(
@@ -205,5 +207,10 @@ describe("Todo API", () => {
                 message: "Unauthorized"
             })
         );
-    });
-});
+    })
+
+
+
+
+
+})

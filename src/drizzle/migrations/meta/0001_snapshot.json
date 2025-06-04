@@ -1,6 +1,6 @@
 {
-  "id": "5a2f3a0d-ef1a-4bff-8db6-d665d1a2d630",
-  "prevId": "63f71847-ee33-412d-8757-03c9628bd1c8",
+  "id": "b86112a5-03e6-4109-8158-66702495c943",
+  "prevId": "6cbc02b8-390b-4ddb-b00d-e4b43d73b69e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -108,6 +108,14 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'user'"
         }
       },
       "indexes": {},
@@ -127,7 +135,16 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "user"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

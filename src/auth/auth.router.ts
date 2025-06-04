@@ -1,30 +1,42 @@
-
-import { registerUserController, loginUserController } from './auth.controller';
-import { Express } from 'express';
-
+// routing
+import { Express } from "express";
+import { createUserController, loginUserController, verifyUserController } from "./auth.controller";
 
 const user = (app: Express) => {
-    // regitser
+    // route
     app.route("/auth/register").post(
         async (req, res, next) => {
             try {
-                await registerUserController(req, res);  //call the controller if the validation passes
+                await createUserController(req, res)
             } catch (error) {
-                next(error);
+                next(error)
+            }
+
+        }
+    )
+
+    // verify user route
+    app.route("/auth/verify").post(
+        async (req, res, next) => {
+            try {
+                await verifyUserController(req, res)
+            } catch (error) {
+                next(error)
             }
         }
-    );
+    )
 
-    // login 
+    // login route
     app.route("/auth/login").post(
         async (req, res, next) => {
             try {
                 await loginUserController(req, res)
             } catch (error) {
-                next(error)
+                next()
             }
         }
-    );
-};
+
+    )
+}
 
 export default user;

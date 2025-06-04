@@ -1,136 +1,163 @@
-# Testing
+# Todo API
 
-### What is `jest.fn()`?
+A simple Node.js (Express) API for managing users and todos.
 
-`jest.fn()` is a **Jest utility** used to **create a mock function** — a **fake function** that lets you:
+---
 
-1. **Track** if and how it was called (e.g., how many times, with what arguments).
-2. **Control** what it returns when it's called.
-3. **Replace** real functions during testing.
+## 📦 Features
 
-### Why Use `jest.fn()`?
+- User registration with password hashing (bcrypt)
+- CRUD operations for todos
+- RESTful API design
+- Middleware usage for JSON parsing and error handling
 
-When writing unit tests, you often don’t want to call the real implementation of a function — especially if it:
+---
 
-* Talks to a **database**
-* Calls an **API**
-* Has **side effects** (e.g., writing files)
+## 📚 How Requests and Responses Work
 
-| Feature         | Example                              | Meaning                                  |
-| --------------- | ------------------------------------ | ---------------------------------------- |
-| Create mock     | `jest.fn()`                        | Create a fake function                   |
-| Spy on calls    | `toHaveBeenCalled()`               | Check if it was called                   |
-| Count calls     | `toHaveBeenCalledTimes(n)`         | Was it called n times?                   |
-| Check arguments | `toHaveBeenCalledWith(arg1, arg2)` | Was it called with these args?           |
-| Return value    | `.mockReturnValue(value)`          | Always return this value                 |
-| Return promise  | `.mockResolvedValue(value)`        | Always resolve a promise with this value |
+When a client (like Postman, VS Code REST Client, or a frontend app) sends an HTTP request to the server, the server processes the request, performs the necessary logic (like saving data or fetching from the database), and sends back an HTTP response.
 
-1. Create a mock and check if it was called
+### Example: Create a User
 
-```ts
-const mockFunction = jest.fn();
+**Request:**
 
-mockFunction(); // call it
+```http
+POST /auth/register
+Content-Type: application/json
 
-expect(mockFunction).toHaveBeenCalled(); // passes
-
+{
+  "firstName": "Sam",
+  "lastName": "Mwai",
+  "email": "sam@example.com",
+  "password": "mypassword123"
+}
 ```
 
-2. Check how many times it was called
+**Response:**
 
-```ts
-mockFunction();
-mockFunction();
-
-expect(mockFunction).toHaveBeenCalledTimes(2);
-
+```json
+{
+  "message": "User created successfully"
+}
 ```
 
-3. Check the arguments it was called with
+---
 
-```ts
-mockFunction('hello', 123);
+### Example: Create a Todo
 
-expect(mockFunction).toHaveBeenCalledWith('hello', 123);
+**Request:**
 
+```http
+POST /todo
+Content-Type: application/json
+
+{
+  "todoName": "Study Node.js",
+  "description": "Complete the Node.js course",
+  "userId": 2,
+  "dueDate": "2025-09-01",
+  "isCompleted": false
+}
 ```
 
-4. Control the return value
+**Response:**
 
-```ts
-const mockReturn = jest.fn().mockReturnValue('Test Value');
-
-console.log(mockReturn()); // 'Test Value'
-
+```json
+{
+  "message": "Todo created",
+  "todo": {
+    "todoName": "Study Node.js",
+    "description": "Complete the Node.js course",
+    "userId": 2,
+    "dueDate": "2025-09-01",
+    "isCompleted": false
+  }
+}
 ```
 
-5. Async version: `mockResolvedValue`
+---
 
-```ts
-const fetchData = jest.fn().mockResolvedValue({ name: 'Alice' });
+## 🔢 Common HTTP Status Codes
 
-const result = await fetchData();
-console.log(result); // { name: 'Alice' }
+| Code | Meaning               | Description                    |
+| ---- | --------------------- | ------------------------------ |
+| 200  | OK                    | Request succeeded              |
+| 201  | Created               | Resource created successfully  |
+| 400  | Bad Request           | Invalid input or missing data  |
+| 401  | Unauthorized          | Authentication required/failed |
+| 404  | Not Found             | Resource not found             |
+| 500  | Internal Server Error | Server encountered an error    |
 
+---
+
+## 🛡️ Middlewares in Express
+
+**Middleware** functions are functions that have access to the request and response objects, and the next function in the request-response cycle.
+
+**Common uses:**
+
+- Parsing JSON (`express.json()`)
+- Logging requests
+- Handling errors
+- Authentication
+
+**Example:**
+
+```typescript
+app.use(express.json()); // Parses incoming JSON requests
 ```
 
+---
 
-# Unit Tests
+## 🔒 Password Hashing with bcrypt
 
-we will mock all the database methods 
+[bcrypt](https://www.npmjs.com/package/bcryptjs) is a library used to hash passwords before storing them in the database, making it much harder for attackers to retrieve the original password if the database is compromised.
 
-1. db.insert
-2. db.query
-3. db.update
-4. db.delete
+**How it works:**
 
-## CreateUser Service
+- When a user registers, their password is hashed using bcrypt.
+- The hashed password is stored in the database.
+- When logging in, bcrypt compares the provided password with the stored hash.
 
-* Should call [db.insert](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) with the correct user data.
-* Should return `"User Created Successfully"` on success.
-* Should throw or return `null` if [db.insert](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) fails (simulate DB error).
+**Example:**
 
+```typescript
+import bcrypt from 'bcryptjs';
 
-## User Login Service
+const hashedPassword = bcrypt.hashSync(password, 10);
+```
 
-* Should call [db.query.UsersTable.findFirst](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) with the correct email.
-* Should return user data if found.
-* Should return `null` if user is not found.
-* Should throw if the DB query fails (simulate DB error).
+---
 
+## 🗺️ API Request-Response Flow Diagram
 
-## CreateTodo Service
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant Database
 
-* Should call [db.insert](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) with the correct todo data.
-* Should return the inserted todo object (including its ID).
-* Should return `null` if insertion fails (simulate DB error).
+    Client->>Server: POST /auth/register (user data)
+    Server->>Server: Validate & hash password (bcrypt)
+    Server->>Database: Insert user
+    Database-->>Server: Success/Failure
+    Server-->>Client: JSON response (status code)
+```
 
-## getTodosService
+---
 
-* Should call [db.query.TodoTable.findMany](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html).
-* Should return an array of todos.
-* Should return an empty array if no todos exist.
-* Should throw if the DB query fails.
+## 🚀 Getting Started
 
-## getTodoByIdService
+1. Install dependencies:
 
-* Should call [db.query.TodoTable.findFirst](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) with the correct ID.
-* Should return the todo if found.
-* Should return `undefined` if not found.
-* Should throw if the DB query fails.
+   ```sh
+   pnpm install
+   ```
+2. Start the server:
 
-## updateTodoService
+   ```sh
+   pnpm run dev
+   ```
+3. Use the provided `.http` file or Postman to test the API.
 
-* Should call [db.update](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) with the correct ID and data.
-
-* Should return `"Todo Updated Successfully"` on success.
-* Should throw if the update fails.
-
-## deleteTodoService
-
-* Should call [db.delete](vscode-file://vscode-app/c:/Users/BrianKemboi/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) with the correct ID.
-* Should return `"Todo deleted Successfully"` on success.
-* Should throw if the delete fails.
-
-
-Tests.....
+---

@@ -5,7 +5,7 @@
     "rootDir": "./src",
     // "moduleResolution": "node10",
     "moduleResolution": "nodenext",
-    "isolatedModules": true,
+    "isolatedModules":true,
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true, 
@@ -14,12 +14,10 @@
     "skipLibCheck": true 
   },
   "include": [
-    "src/**/*"
-  ],
+    "src/**/*"   
+, "src/index.ts", "src/server.ts"  ],
   "exclude": [
     "node_modules",
-    "**/__tests__/**/*",
-    "**/*.test.ts", 
     "**/*.spec.ts"
   ],
 }

@@ -1,0 +1,7 @@
+# Environment Variables Example
+
+Database_URL=postgres://postgres:yourpass@localhost:5432/your-db-name
+JWT_SECRET = your-secret-key
+EMAIL_USER=the-email-sender
+EMAIL_PASSWORD=password-from-obtain-from-Google-App-Password
+# See: https://support.google.com/accounts/answer/185833?hl=en
